@@ -4,207 +4,246 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wealth OS</title>
-
 <style>
 :root{
-  --bg:#0A0A0A;
-  --card:#151515;
-  --border:#232323;
-  --text:#FFFFFF;
-  --muted:#9CA3AF;
-  --accent:#00D2FF;
-  --success:#39D98A;
+  --bg:#0A0A0A; --card:#151515; --border:#2A2A2A;
+  --text:#FFFFFF; --muted:#9CA3AF; --accent:#00D2FF;
+  --success:#39D98A; --danger:#FF5C5C; --gold:#D4AF37;
 }
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
+*{box-sizing:border-box}
 body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  padding:20px;
+  margin:0; padding:22px; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
 }
-
-.container{
-  max-width:600px;
-  margin:auto;
-}
-
+.container{max-width:640px;margin:auto}
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:20px;
-  margin-bottom:16px;
+  background:linear-gradient(180deg,#171717,#121212);
+  border:1px solid var(--border); border-radius:28px;
+  padding:22px; margin-bottom:18px;
 }
-
-.label{
-  color:var(--muted);
-  font-size:12px;
-  letter-spacing:1px;
+.label{color:var(--muted);font-size:12px;letter-spacing:3px;text-transform:uppercase}
+.networth{font-size:48px;font-weight:800;margin:14px 0}
+.green{color:var(--success)} .red{color:var(--danger)}
+.row{display:flex;justify-content:space-between;align-items:center;margin:14px 0;font-size:19px}
+input,select{
+  width:100%; margin:8px 0 12px; padding:15px;
+  border:none; border-radius:16px; background:#242424; color:#fff; font-size:16px;
 }
-
-.networth{
-  font-size:42px;
-  font-weight:700;
-  margin-top:8px;
-}
-
-.growth{
-  color:var(--success);
-  margin-top:8px;
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
-  margin:12px 0;
-}
-
-input{
-  width:100%;
-  background:#222;
-  border:none;
-  border-radius:12px;
-  padding:14px;
-  color:white;
-  margin-bottom:10px;
-}
-
 button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:var(--accent);
-  color:black;
-  font-weight:700;
+  width:100%; padding:15px; border:none; border-radius:18px;
+  background:var(--accent); color:#000; font-weight:800; font-size:16px;
 }
-
-.ai{
-  line-height:1.8;
-}
+button.secondary{background:#242424;color:#fff}
+button.danger{background:#2b1515;color:#ff8b8b}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.small{font-size:13px;color:var(--muted);line-height:1.6}
+.pill{display:inline-block;padding:7px 10px;background:#242424;border-radius:999px;margin-top:8px;color:var(--muted)}
+hr{border:none;border-top:1px solid #262626;margin:18px 0}
 </style>
 </head>
-
 <body>
-
 <div class="container">
 
-<div class="card">
-  <div class="label">WEALTH OS</div>
-  <div class="label">Age 22</div>
-
-  <div class="networth" id="networth">
-    ¥2,384,200
+  <div class="card">
+    <div class="label">WEALTH OS</div>
+    <div class="small">Personal CFO Dashboard</div>
+    <div class="networth" id="netWorth">¥0</div>
+    <div class="green" id="monthlyStatus">▲ Wealth tracking active</div>
   </div>
 
-  <div class="growth">
-    ▲ +¥82,300 this month
-  </div>
-</div>
-
-<div class="card">
-
-  <div class="label">ASSETS</div>
-
-  <div class="row">
-    <span>🐳 Liquid</span>
-    <span id="cashDisplay">¥850,000</span>
+  <div class="card">
+    <div class="label">Accounts</div>
+    <div id="accountList"></div>
   </div>
 
-  <div class="row">
-    <span>🚀 Investments</span>
-    <span id="investDisplay">¥1,214,200</span>
+  <div class="card">
+    <div class="label">Add Account</div>
+    <input id="bankName" placeholder="金融機関名 例：SBI証券">
+    <select id="accountEmoji">
+      <option value="🐳">🐳 Liquid</option>
+      <option value="🚀">🚀 Investments</option>
+      <option value="🌴">🌴 Travel</option>
+      <option value="⚡">⚡ Emergency</option>
+      <option value="💎">💎 Wealth</option>
+      <option value="🦅">🦅 Global</option>
+    </select>
+    <input id="accountLabel" placeholder="表示名 例：Investments">
+    <input id="accountBalance" type="number" placeholder="金額 例：1214200">
+    <button onclick="addAccount()">Add Account</button>
+    <div class="small">※ 金融機関名は保存されますが、画面には絵文字と表示名だけ出ます。</div>
   </div>
 
-  <div class="row">
-    <span>🌴 Travel</span>
-    <span id="travelDisplay">¥320,000</span>
+  <div class="card">
+    <div class="label">Monthly Plan</div>
+    <input id="salary" type="number" placeholder="毎月の手取り 例：260000">
+    <input id="fixedCost" type="number" placeholder="固定費 例：160000">
+    <input id="targetInvest" type="number" placeholder="毎月投資したい額 例：80000">
+    <button onclick="savePlan()">Save Plan</button>
   </div>
 
-</div>
-
-<div class="card">
-
-  <div class="label">UPDATE ASSETS</div>
-
-  <input id="cash" type="number" value="850000">
-
-  <input id="invest" type="number" value="1214200">
-
-  <input id="travel" type="number" value="320000">
-
-  <button onclick="updateWealth()">
-    Update Wealth
-  </button>
-
-</div>
-
-<div class="card">
-
-  <div class="label">AI INSIGHT</div>
-
-  <div class="ai" id="insight">
-    You are on track.<br><br>
-    Suggested Investment: ¥80,000<br>
-    Travel Fund: Healthy
+  <div class="card">
+    <div class="label">Upcoming Plan</div>
+    <input id="eventName" placeholder="予定名 例：🇫🇷 Nice Trip">
+    <input id="eventCost" type="number" placeholder="予定支出 例：250000">
+    <button onclick="addEvent()">Add Plan</button>
+    <div id="eventList"></div>
   </div>
 
-</div>
+  <div class="card">
+    <div class="label">AI CFO Insight</div>
+    <div id="insight" style="line-height:1.8;margin-top:12px"></div>
+    <button onclick="runCFO()">Run Board Meeting</button>
+  </div>
+
+  <div class="card">
+    <div class="label">System</div>
+    <div class="grid">
+      <button class="secondary" onclick="exportData()">Export Data</button>
+      <button class="danger" onclick="resetData()">Reset</button>
+    </div>
+    <div class="small" id="exportBox"></div>
+  </div>
 
 </div>
 
 <script>
+let data = JSON.parse(localStorage.getItem("wealthOS_v11")) || {
+  accounts:[
+    {emoji:"🐳", label:"Liquid", balance:850000, bank:"hidden"},
+    {emoji:"🚀", label:"Investments", balance:1214200, bank:"hidden"},
+    {emoji:"🌴", label:"Travel", balance:320000, bank:"hidden"}
+  ],
+  plan:{salary:260000, fixedCost:160000, targetInvest:80000},
+  events:[]
+};
 
-function yen(num){
-  return "¥" + Number(num).toLocaleString();
+function yen(n){return "¥" + Number(n || 0).toLocaleString();}
+function save(){localStorage.setItem("wealthOS_v11", JSON.stringify(data)); render();}
+
+function totalAssets(){
+  return data.accounts.reduce((sum,a)=>sum+Number(a.balance||0),0);
 }
 
-function updateWealth(){
+function render(){
+  document.getElementById("netWorth").innerText = yen(totalAssets());
 
-  const cash =
-    Number(document.getElementById("cash").value);
+  document.getElementById("accountList").innerHTML = data.accounts.map((a,i)=>`
+    <div class="row">
+      <span>${a.emoji} ${a.label}</span>
+      <span>${yen(a.balance)}</span>
+    </div>
+    <button class="danger" onclick="deleteAccount(${i})">Delete ${a.emoji}</button>
+    <hr>
+  `).join("");
 
-  const invest =
-    Number(document.getElementById("invest").value);
+  document.getElementById("salary").value = data.plan.salary || "";
+  document.getElementById("fixedCost").value = data.plan.fixedCost || "";
+  document.getElementById("targetInvest").value = data.plan.targetInvest || "";
 
-  const travel =
-    Number(document.getElementById("travel").value);
+  document.getElementById("eventList").innerHTML = data.events.map((e,i)=>`
+    <hr>
+    <div class="row">
+      <span>${e.name}</span>
+      <span class="red">-${yen(e.cost)}</span>
+    </div>
+    <button class="danger" onclick="deleteEvent(${i})">Delete Plan</button>
+  `).join("");
 
-  document.getElementById("cashDisplay")
-    .innerText = yen(cash);
-
-  document.getElementById("investDisplay")
-    .innerText = yen(invest);
-
-  document.getElementById("travelDisplay")
-    .innerText = yen(travel);
-
-  const total =
-    cash + invest + travel;
-
-  document.getElementById("networth")
-    .innerText = yen(total);
-
-  const recommended =
-    Math.round(total * 0.03);
-
-  document.getElementById("insight")
-    .innerHTML =
-    `Analysis Complete.<br><br>
-     Net Worth: ${yen(total)}<br>
-     Suggested Investment: ${yen(recommended)}<br>
-     Risk Level: Low`;
+  runCFO(false);
 }
 
-updateWealth();
+function addAccount(){
+  const bank = document.getElementById("bankName").value || "hidden";
+  const emoji = document.getElementById("accountEmoji").value;
+  const label = document.getElementById("accountLabel").value || "Asset";
+  const balance = Number(document.getElementById("accountBalance").value || 0);
 
+  data.accounts.push({bank, emoji, label, balance});
+  document.getElementById("bankName").value = "";
+  document.getElementById("accountLabel").value = "";
+  document.getElementById("accountBalance").value = "";
+  save();
+}
+
+function deleteAccount(i){
+  data.accounts.splice(i,1);
+  save();
+}
+
+function savePlan(){
+  data.plan.salary = Number(document.getElementById("salary").value || 0);
+  data.plan.fixedCost = Number(document.getElementById("fixedCost").value || 0);
+  data.plan.targetInvest = Number(document.getElementById("targetInvest").value || 0);
+  save();
+}
+
+function addEvent(){
+  const name = document.getElementById("eventName").value || "Upcoming Plan";
+  const cost = Number(document.getElementById("eventCost").value || 0);
+  data.events.push({name,cost});
+  document.getElementById("eventName").value = "";
+  document.getElementById("eventCost").value = "";
+  save();
+}
+
+function deleteEvent(i){
+  data.events.splice(i,1);
+  save();
+}
+
+function runCFO(show=true){
+  const total = totalAssets();
+  const salary = Number(data.plan.salary||0);
+  const fixed = Number(data.plan.fixedCost||0);
+  const targetInvest = Number(data.plan.targetInvest||0);
+  const eventCosts = data.events.reduce((s,e)=>s+Number(e.cost||0),0);
+  const monthlyFree = salary - fixed - targetInvest;
+  const afterEvents = total - eventCosts;
+  const safetyMonths = fixed ? Math.round(total / fixed * 10)/10 : 0;
+
+  let status = "Healthy";
+  let recommendation = "Current plan is sustainable.";
+
+  if(monthlyFree < 0){
+    status = "Tight";
+    recommendation = "投資額か自由費を少し落とすのが安全です。";
+  }else if(eventCosts > total * 0.2){
+    status = "Watch";
+    recommendation = "大型支出が資産の20%超です。旅行積立を分けると安心です。";
+  }else if(safetyMonths >= 6){
+    recommendation = "生活防衛資金は十分。投資または旅行積立を増やせます。";
+  }
+
+  document.getElementById("insight").innerHTML = `
+    <div class="pill">Status: ${status}</div><br><br>
+    Net Worth: <b>${yen(total)}</b><br>
+    Monthly Salary: ${yen(salary)}<br>
+    Fixed Cost: ${yen(fixed)}<br>
+    Target Investment: ${yen(targetInvest)}<br>
+    Free Cash After Plan: <b>${yen(monthlyFree)}</b><br>
+    Upcoming Costs: <span class="red">${yen(eventCosts)}</span><br>
+    After Upcoming Plans: <b>${yen(afterEvents)}</b><br>
+    Safety Buffer: ${safetyMonths} months<br><br>
+    <b>Recommendation</b><br>
+    ${recommendation}
+  `;
+}
+
+function exportData(){
+  document.getElementById("exportBox").innerText =
+    JSON.stringify(data,null,2);
+}
+
+function resetData(){
+  if(confirm("Reset all Wealth OS data?")){
+    localStorage.removeItem("wealthOS_v11");
+    location.reload();
+  }
+}
+
+render();
 </script>
-
 </body>
 </html>
+
+
