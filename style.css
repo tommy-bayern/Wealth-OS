@@ -57,4 +57,42 @@ display:flex;
 justify-content:space-between;
 padding:12px 0;
 border-bottom:1px solid #222;
+
+.form{
+margin-top:18px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+input,select{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:1px solid #333;
+background:#1f1f1f;
+color:white;
+font-size:16px;
+}
+
+button{
+padding:12px;
+border-radius:14px;
+border:none;
+background:#00d2ff;
+color:#000;
+font-weight:700;
+}
+
+.actions{
+display:flex;
+gap:8px;
+margin:8px 0 16px;
+}
+
+.actions button{
+background:#252525;
+color:white;
+font-size:13px;
+}
 }
