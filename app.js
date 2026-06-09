@@ -41,6 +41,11 @@ function totalAssets(){
 
 function render(){
   document.getElementById("netWorth").innerText = yen(totalAssets());
+  document.getElementById("monthlySummary").innerText =
+  yen(bucketTotal()) + " " +
+  (cashflowNet() >= 0 ? "+ " : "- ") +
+  yen(Math.abs(cashflowNet())) +
+  " this month";
 
   document.getElementById("bucketList").innerHTML = `
     ${data.buckets.map((b, i) => `
