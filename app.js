@@ -21,8 +21,22 @@ function yen(n){
   return "¥" + Number(n || 0).toLocaleString();
 }
 
-function totalAssets(){
+function bucketTotal(){
   return data.buckets.reduce((sum, b) => sum + Number(b.amount), 0);
+}
+
+function cashflowNet(){
+  return data.cashflows.reduce((sum, c) => {
+    if(c.type === "income"){
+      return sum + Number(c.amount);
+    }else{
+      return sum - Number(c.amount);
+    }
+  }, 0);
+}
+
+function totalAssets(){
+  return bucketTotal() + cashflowNet();
 }
 
 function render(){
