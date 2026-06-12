@@ -7,7 +7,8 @@ const defaultData = {
   cashflows: [
     { month: "2026-06", type: "income", name: "Salary", amount: 260000 },
     { month: "2026-06", type: "expense", name: "Living Cost", amount: 198000 }
-  ]
+  ],
+  selectedMonth: "2026-06"
 };
 
 let data = JSON.parse(localStorage.getItem("wealthOS")) || defaultData;
@@ -25,13 +26,15 @@ function bucketTotal(){
   return data.buckets.reduce((sum, b) => sum + Number(b.amount), 0);
 }
 
+function monthlyCashflows(){
+  return data.cashflows.filter(c => c.month === data.selectedMonth);
+}
+
 function cashflowNet(){
-  return data.cashflows.reduce((sum, c) => {
-    if(c.type === "income"){
-      return sum + Number(c.amount);
-    }else{
-      return sum - Number(c.amount);
-    }
+  return monthlyCashflows().reduce((sum, c) => {
+    return c.type === "income"
+      ? sum + Number(c.amount)
+      : sum - Number(c.amount);
   }, 0);
 }
 
@@ -40,12 +43,12 @@ function totalAssets(){
 }
 
 function render(){
+  const net = cashflowNet();
+
   document.getElementById("netWorth").innerText = yen(totalAssets());
+
   document.getElementById("monthlySummary").innerText =
-  yen(bucketTotal()) + " " +
-  (cashflowNet() >= 0 ? "+ " : "- ") +
-  yen(Math.abs(cashflowNet())) +
-  " this month";
+    `Buckets ${yen(bucketTotal())} / ${data.selectedMonth} Cashflow ${net >= 0 ? "+" : "-"} ${yen(Math.abs(net))}`;
 
   document.getElementById("bucketList").innerHTML = `
     ${data.buckets.map((b, i) => `
@@ -67,21 +70,25 @@ function render(){
     </div>
   `;
 
-  const income = data.cashflows
+  const income = monthlyCashflows()
     .filter(c => c.type === "income")
     .reduce((s, c) => s + Number(c.amount), 0);
 
-  const expense = data.cashflows
+  const expense = monthlyCashflows()
     .filter(c => c.type === "expense")
     .reduce((s, c) => s + Number(c.amount), 0);
 
   document.getElementById("cashflowSummary").innerHTML = `
+    <div class="form">
+      <input id="monthPicker" type="month" value="${data.selectedMonth}" onchange="changeMonth()">
+    </div>
+
     <div class="bucket"><span>Income</span><span>${yen(income)}</span></div>
     <div class="bucket"><span>Expense</span><span>${yen(expense)}</span></div>
     <div class="bucket"><span>Net</span><span>${yen(income - expense)}</span></div>
 
     <div class="form">
-      <input id="flowMonth" placeholder="Month 例：2026-06">
+      <input id="flowMonth" type="month" value="${data.selectedMonth}">
       <select id="flowType">
         <option value="income">Income</option>
         <option value="expense">Expense</option>
@@ -91,24 +98,32 @@ function render(){
       <button onclick="addCashflow()">Add Cashflow</button>
     </div>
 
-    ${data.cashflows.map((c, i) => `
+    ${monthlyCashflows().map((c, i) => `
       <div class="bucket">
         <span>${c.month} ${c.type === "income" ? "+" : "-"} ${c.name}</span>
         <span>${yen(c.amount)}</span>
       </div>
       <div class="actions">
-        <button onclick="deleteCashflow(${i})">Delete</button>
+        <button onclick="deleteCashflow(${data.cashflows.indexOf(c)})">Delete</button>
       </div>
     `).join("")}
   `;
 
   document.getElementById("aiInsight").innerHTML = `
-    <div class="bucket"><span>Status</span><span>${income - expense >= 0 ? "Positive" : "Negative"}</span></div>
+    <div class="bucket">
+      <span>${data.selectedMonth} Status</span>
+      <span>${net >= 0 ? "Positive" : "Negative"}</span>
+    </div>
     <br>
-    ${income - expense >= 0 
-      ? "今月は黒字。投資・旅行積立を増やせます。" 
-      : "今月は赤字。出金予定を見直した方が安全です。"}
+    ${net >= 0
+      ? "この月は黒字。投資・旅行積立を増やせます。"
+      : "この月は赤字。出金予定を見直した方が安全です。"}
   `;
+}
+
+function changeMonth(){
+  data.selectedMonth = document.getElementById("monthPicker").value;
+  save();
 }
 
 function addBucket(){
@@ -145,7 +160,7 @@ function deleteBucket(i){
 }
 
 function addCashflow(){
-  const month = document.getElementById("flowMonth").value || "2026-06";
+  const month = document.getElementById("flowMonth").value || data.selectedMonth;
   const type = document.getElementById("flowType").value;
   const name = document.getElementById("flowName").value || "Cashflow";
   const amount = Number(document.getElementById("flowAmount").value || 0);
